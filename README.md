@@ -15,7 +15,8 @@ ai-playbooks/
 │       └── orchestrator.md   # Claude Code only — see docs/orchestrator-portability-gaps.md
 ├── docs/
 │   └── orchestrator-portability-gaps.md
-└── sync.sh                   # copies the above into each tool's config dir
+├── sync.sh                   # copies the above into each tool's config dir
+└── update.sh                 # git pull + sync.sh, but only if there's actually an update
 ```
 
 ## Portability status
@@ -33,15 +34,33 @@ Each AI tool reads skills from its own personal config directory:
 - Cursor: `~/.cursor/skills/`
 - Codex CLI: `~/.codex/skills/` (`$CODEX_HOME/skills`)
 
-This repo is the source of truth. After editing anything here, run:
+This repo is the source of truth.
+
+**New machine** — clone and sync once:
+
+```bash
+git clone https://github.com/lucasteles22/ai-playbooks.git ~/dev/ai-playbooks
+~/dev/ai-playbooks/sync.sh
+```
+
+**After editing something here** — sync again:
 
 ```bash
 ./sync.sh
 ```
 
-It copies `skills/*` into all three tools' skill directories, and
+**Existing machine, checking for updates made elsewhere:**
+
+```bash
+./update.sh       # pulls and syncs only if the remote has new commits
+./update.sh -n    # check only, print what's new, change nothing
+```
+
+`sync.sh` copies `skills/*` into all three tools' skill directories, and
 `claude/commands/orchestrator.md` into Claude Code's commands directory
-only (it has no portable equivalent elsewhere yet).
+only (it has no portable equivalent elsewhere yet). `update.sh` refuses
+to run if the working tree has uncommitted changes, and only pulls with
+`--ff-only` (never rewrites local history).
 
 ## Usage note
 
