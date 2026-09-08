@@ -14,13 +14,14 @@ $ARGUMENTS. Parse $ARGUMENTS first:
 - `--repo org/repo` → overrides the repo resolved above.
 - `--platform github|gitlab` → overrides platform detection.
 - `--merge` → switches to Flow 2 (Approval) instead of Flow 1 (Delivery).
-- `--validate` → switches to Flow 3 (Validation): runs the
-  `regression-validation` skill against the issue's existing branch/PR and
-  reports a pass/fail verdict. Combinable with `--merge`
-  (`--validate --merge`): validate first, and only continue into Flow 2
-  (merge) if the verdict is clean — if not, stop and show the findings
-  instead of merging. `--validate` alone never merges, regardless of
-  verdict.
+- `--validate` → switches to Flow 3 (Validation): locates the issue's
+  existing branch/PR, then hands off to the user to run
+  `/regression-validation` themselves against it (the skill can't be
+  invoked programmatically — see Flow 3). Combinable with `--merge`
+  (`--validate --merge`): once the user reports the verdict, only
+  continue into Flow 2 (merge) if it's clean — if not, stop and show the
+  findings instead of merging. `--validate` alone never merges, regardless
+  of verdict.
 
 If the issue number can't be parsed from $ARGUMENTS, stop and ask for it.
 
@@ -55,21 +56,29 @@ Flow 2 or Flow 1 — see Flow precedence above.
    this lookup again later if continuing into Flow 2 for a merge (see
    step 3 here).
 
-2. Invoke the `regression-validation` skill against that branch/worktree.
-   Let it fully determine and report scope, run its checks, clean up
-   after itself, and produce its structured report ending in a
-   `✅ Safe to merge` or `❌ Do not merge — <reason>` verdict line.
+2. `regression-validation` ships with `disable-model-invocation: true`,
+   which blocks it from being called via the Skill tool by anything other
+   than the user typing `/regression-validation` themselves — this
+   applies even here, even though the user is the one who typed
+   `--validate`. Do not attempt to invoke it, and do not replicate its
+   procedure by reading the skill file and doing the steps manually —
+   both defeat the point of the guardrail. Instead, hand off explicitly:
+   tell the user the branch, worktree path, and PR/MR number found in
+   Step 1, and ask them to run `/regression-validation` against it
+   themselves. Then stop and wait for their reply.
 
-3. Branch on whether `--merge` was also passed:
-   - **`--validate` alone:** print the skill's full report and stop here.
-     Do not merge, do not touch the worktree beyond what the skill itself
-     did.
+3. When the user reports back (they may paste the skill's full report, or
+   just summarize the verdict), branch on whether `--merge` was also
+   passed:
+   - **`--validate` alone:** relay/print whatever verdict the user gave
+     you and stop here. Do not merge, do not touch the worktree.
    - **`--validate --merge` together:**
      - If the verdict is `✅ Safe to merge`: continue directly into Flow 2
        starting at **its Step 3** (merge) — the branch/PR are already
        known from this flow's Step 1, don't re-look them up.
-     - If the verdict is `❌ Do not merge`: print the skill's full report
-       and stop. Do not merge, do not touch the worktree.
+     - If the verdict is `❌ Do not merge` (or anything short of a clear
+       pass): print the verdict and stop. Do not merge, do not touch the
+       worktree.
 
 ## Flow 2: Approval (--merge)
 
