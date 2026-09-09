@@ -11,15 +11,15 @@ Cursor-native or Codex-native version is worth building.
 
 | Mechanism (Claude Code) | Used in | Cursor equivalent | Codex CLI status |
 |---|---|---|---|
-| Background `Agent` tool dispatch | Flow 1 Step 4 (>3 tasks) | Subagents / Background Agents (`.cursor/agents/`) | Not researched — investigate |
-| `EnterWorktree`/`ExitWorktree` native tools | Step 2, Flow 2 Step 5 | No named equivalent tool found; likely plain `git worktree` via shell | Not researched |
-| `superpowers:using-git-worktrees` | Step 2 | Doesn't exist — would need to be written from scratch | Doesn't exist |
-| `superpowers:brainstorming` / `writing-plans` | Step 3 | Doesn't exist — would need to be written from scratch | Doesn't exist |
+| Background `Agent` tool dispatch | Flow 1 Step 4 (>3 tasks) | Subagents / Background Agents (`.cursor/agents/`) | Codex subagents, optional; sequential fallback when unavailable |
+| `EnterWorktree`/`ExitWorktree` native tools | Step 2, Flow 2 Step 5 | No named equivalent tool found; likely plain `git worktree` via shell | Plain `git worktree` via shell, with named issue branches |
+| `superpowers:using-git-worktrees` | Step 2 | Doesn't exist — would need to be written from scratch | Replaced by explicit Git worktree procedure in the Codex skill |
+| `superpowers:brainstorming` / `writing-plans` | Step 3 | Doesn't exist — would need to be written from scratch | Replaced by Codex requirements classification and architectural approval gate |
 | `superpowers:requesting-code-review` | Step 5a | Cursor ships built-in `review`/`review-bugbot`/`review-security` skills — closest real equivalent found so far | Not researched |
-| `superpowers:subagent-driven-development` | Step 5b | Composable from Cursor's own Subagents, but nothing pre-built | Doesn't exist |
-| `superpowers:finishing-a-development-branch` | Step 7, Flow 2 Step 5 | Doesn't exist — would need to be written from scratch | Doesn't exist |
+| `superpowers:subagent-driven-development` | Step 5b | Composable from Cursor's own Subagents, but nothing pre-built | Codex subagents for independent tasks, with no concurrent edits to the same files |
+| `superpowers:finishing-a-development-branch` | Step 7, Flow 2 Step 5 | Doesn't exist — would need to be written from scratch | Explicit shell/forge instructions for push, PR/MR, merge, and worktree cleanup |
 | `regression-validation` skill | Flow 3 | **Already portable** — same `SKILL.md`, just copy | **Already portable** — same `SKILL.md`, just copy |
-| `$ARGUMENTS` slash-command parsing | Top of file | Cursor commands (`.cursor/commands/*.md`) accept args similarly, no frontmatter required; Cursor Skills also support an `arguments` field | Codex Skills also support an `arguments` field (same shape) |
+| `$ARGUMENTS` slash-command parsing | Top of file | Cursor commands (`.cursor/commands/*.md`) accept args similarly, no frontmatter required; Cursor Skills also support an `arguments` field | Explicit natural-language invocation with the argument string documented in `codex/orchestrator/README.md` |
 
 ## Why this matters
 
@@ -54,6 +54,10 @@ using whatever it actually has available — not a translation of Claude
 Code's tool names. The full spec handed to Codex for this is not
 committed here (it was sent directly), but `codex/orchestrator/README.md`
 tracks its status.
+
+The Codex implementation now lives in `codex/orchestrator/SKILL.md`. It uses
+plain Git worktrees, optional Codex subagents, explicit review and approval
+gates, and a separate-user handoff for `regression-validation`.
 
 If a similar Cursor-native version is ever worth building, follow the
 same principle: separate implementation, shared contract only, starting
