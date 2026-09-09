@@ -41,5 +41,5 @@ if $CHECK_ONLY; then
 fi
 
 git pull --ff-only origin "$BRANCH"
-"$REPO_DIR/sync.sh"
-echo "Updated and synced."
+"$REPO_DIR/install.sh"
+echo "Updated and installed."
