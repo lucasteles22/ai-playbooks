@@ -11,12 +11,14 @@ conditions).
 
 ## Invocation
 
-Use the skill explicitly in a Codex chat or CLI session:
+Use the skill explicitly in a Codex chat or CLI session. In Codex CLI or the
+IDE extension, mention it with `$orchestrator`; in the desktop app, select the
+skill from the Skills UI:
 
 ```text
-Use the orchestrator skill with: 31
-Use the orchestrator skill with: https://github.com/org/repo/issues/31 --validate
-Use the orchestrator skill with: 31 --merge
+$orchestrator 31
+$orchestrator https://github.com/org/repo/issues/31 --validate
+$orchestrator 31 --merge
 ```
 
 The skill accepts `--repo`, `--platform`, `--merge`, and `--validate`. It uses
@@ -29,4 +31,4 @@ skill reports the discovered branch/worktree/PR and asks the user to invoke
 `regression-validation` explicitly in a separate interaction.
 
 `install.sh` installs this directory as `$CODEX_HOME/skills/orchestrator` once
-`SKILL.md` exists.
+`SKILL.md` exists, including its `agents/openai.yaml` invocation policy.

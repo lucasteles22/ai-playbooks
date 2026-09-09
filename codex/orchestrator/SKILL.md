@@ -5,15 +5,16 @@ description: Execute the Codex-native issue-to-PR workflow for a GitHub or GitLa
 
 # Codex Orchestrator
 
-Run this workflow when the user explicitly asks to use the orchestrator with
-an issue number or issue URL. The documented invocation is:
+Run this workflow only when the user explicitly invokes the skill with an
+issue number or issue URL. The documented invocation is:
 
 ```text
-Use the orchestrator skill with: 31 --validate --merge
+$orchestrator 31 --validate --merge
 ```
 
-Treat the text after `with:` as the argument string. Parse it before taking
-any repository action.
+Treat the text after `$orchestrator` as the argument string. Parse it before
+taking any repository action. The skill's `agents/openai.yaml` also disables
+implicit invocation in Codex.
 
 This is the Codex-native implementation. Do not reference or emulate Claude
 Code tools or `superpowers:*`. The Claude implementation in
@@ -60,14 +61,19 @@ Run this flow when neither `--merge` nor `--validate` is present.
    comment, or is ambiguous without the discussion.
 2. Check the current worktree for user changes and discover the remote's
    default branch. Do not discard or overwrite existing work.
-3. Use Git worktrees through the shell. Create or resume the branch
-   `issue-<number>-<slug>`, where the slug is the lowercased issue title with
-   runs of non-alphanumeric characters replaced by one hyphen, edge hyphens
-   removed, and length truncated to 40 characters. Use the freshly fetched
-   remote default branch as the base.
-4. If one existing worktree or branch matches `issue-<number>-*`, resume it.
-   If multiple match, list them and ask which to use. If it already contains
-   commits beyond the base, inspect and resume it instead of recreating it.
+3. Before creating anything, inspect `git worktree list --porcelain` and
+   `git branch --list "issue-<number>-*"` for an existing match. If exactly
+   one worktree or branch matches, resume it. If multiple match, list them
+   and ask which to use. If the resumed worktree contains commits beyond the
+   base, inspect its commits and current diff, preserve the prior requirements
+   decision, and continue from implementation/review as appropriate; do not
+   repeat an already completed architectural approval gate unless the user
+   changes the scope or intent.
+4. Only when no match exists, use Git worktrees through the shell to create
+   the branch `issue-<number>-<slug>`, where the slug is the lowercased issue
+   title with runs of non-alphanumeric characters replaced by one hyphen,
+   edge hyphens removed, and length truncated to 40 characters. Use the
+   freshly fetched remote default branch as the base.
 5. Never use a forceful worktree or branch operation. Stop if creating or
    resuming the worktree would overwrite uncommitted user work.
 6. Inspect the issue and repository. Classify the change as exploratory,
@@ -123,9 +129,10 @@ Run this flow before Approval when both flags are present.
    its metadata appears to permit it. Do not read its procedure and replay it
    manually; that would bypass its explicit-invocation guardrail.
 4. When the user reports a verdict, relay it and stop for `--validate` alone.
-   With both flags, continue at Approval step 3 only for the exact positive
-   verdict `✅ Safe to merge`. For any failure, ambiguity, or inability to
-   validate cleanly, stop without merging.
+   With both flags, continue at Approval step 4 and execute the remaining
+   Approval steps only for the exact positive verdict `✅ Safe to merge`.
+   For any failure, ambiguity, or inability to validate cleanly, stop without
+   merging.
 
 ## Stop conditions and safety rules
 

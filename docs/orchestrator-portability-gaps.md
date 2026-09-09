@@ -19,7 +19,7 @@ Cursor-native or Codex-native version is worth building.
 | `superpowers:subagent-driven-development` | Step 5b | Composable from Cursor's own Subagents, but nothing pre-built | Codex subagents for independent tasks, with no concurrent edits to the same files |
 | `superpowers:finishing-a-development-branch` | Step 7, Flow 2 Step 5 | Doesn't exist — would need to be written from scratch | Explicit shell/forge instructions for push, PR/MR, merge, and worktree cleanup |
 | `regression-validation` skill | Flow 3 | **Already portable** — same `SKILL.md`, just copy | **Already portable** — same `SKILL.md`, just copy |
-| `$ARGUMENTS` slash-command parsing | Top of file | Cursor commands (`.cursor/commands/*.md`) accept args similarly, no frontmatter required; Cursor Skills also support an `arguments` field | Explicit natural-language invocation with the argument string documented in `codex/orchestrator/README.md` |
+| `$ARGUMENTS` slash-command parsing | Top of file | Cursor commands (`.cursor/commands/*.md`) accept args similarly, no frontmatter required; Cursor Skills also support an `arguments` field | Explicit `$orchestrator` invocation with implicit selection disabled in `agents/openai.yaml` |
 
 ## Why this matters
 
@@ -51,9 +51,8 @@ user-invoked, never called programmatically. The internal mechanism for
 each responsibility (workspace isolation, requirements/planning gate,
 reviewed implementation, branch integration) is Codex's own to choose,
 using whatever it actually has available — not a translation of Claude
-Code's tool names. The full spec handed to Codex for this is not
-committed here (it was sent directly), but `codex/orchestrator/README.md`
-tracks its status.
+Code's tool names. The implementation and its invocation contract are
+documented in `codex/orchestrator/SKILL.md` and its README.
 
 The Codex implementation now lives in `codex/orchestrator/SKILL.md`. It uses
 plain Git worktrees, optional Codex subagents, explicit review and approval
