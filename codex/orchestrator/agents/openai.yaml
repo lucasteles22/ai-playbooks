@@ -1,0 +1,7 @@
+interface:
+  display_name: "Orchestrator"
+  short_description: "Run the issue-to-PR workflow with explicit delivery, validation, and merge gates."
+  default_prompt: "Use $orchestrator with an issue number or issue URL and the required flags."
+
+policy:
+  allow_implicit_invocation: false

@@ -14,7 +14,7 @@ ai-playbooks/
 │   └── commands/
 │       └── orchestrator.md   # Claude Code only — see docs/orchestrator-portability-gaps.md
 ├── codex/
-│   └── orchestrator/         # pending — Codex-native implementation, see its README
+│   └── orchestrator/         # Codex-native implementation, see its README
 ├── docs/
 │   └── orchestrator-portability-gaps.md
 ├── install.sh                # installs the above into each tool's config dir
@@ -27,7 +27,7 @@ ai-playbooks/
 |---|---|---|---|
 | `skills/regression-validation` | [Agent Skills](https://agentskills.io) `SKILL.md` | Claude Code, Cursor, Codex CLI/ChatGPT, opencode | Same open format, same frontmatter, read natively by each tool from its own `skills/` directory. No tool-specific tricks needed. |
 | `claude/commands/orchestrator.md` | Claude Code slash-command | Claude Code only | Depends on Claude-Code-only mechanics (background agent dispatch, native worktree tools, the `superpowers` skill library). Kept as-is, not generalized — see [docs/orchestrator-portability-gaps.md](docs/orchestrator-portability-gaps.md). |
-| `codex/orchestrator` | TBD (Codex-native) | Codex only | Pending — a native reimplementation sharing only the external contract (flags/flows/stop conditions) with the Claude Code version, not its internal mechanics. See `codex/orchestrator/README.md`. |
+| `codex/orchestrator` | Agent Skills `SKILL.md` | Codex only | Native implementation sharing only the external contract (flags/flows/stop conditions) with the Claude Code version. Uses shell Git worktrees, optional Codex subagents, and explicit validation handoff. See `codex/orchestrator/README.md`. |
 
 ## Installing on a tool/machine
 
@@ -63,8 +63,7 @@ git clone https://github.com/lucasteles22/ai-playbooks.git ~/dev/ai-playbooks
 
 `install.sh` copies `skills/*` into every tool's skill directory,
 `claude/commands/orchestrator.md` into Claude Code's commands directory,
-and `codex/orchestrator` into Codex's skills directory once that
-implementation actually exists (it's a no-op until then). `update.sh`
+and `codex/orchestrator` into Codex's skills directory. `update.sh`
 refuses to run if the working tree has uncommitted changes, and only
 pulls with `--ff-only` (never rewrites local history).
 
