@@ -123,14 +123,22 @@ Run this flow when `--merge` is present without `--validate`.
 Run this flow before Approval when both flags are present.
 
 1. Perform the same unique branch/worktree and PR/MR lookup as Approval.
-2. Tell the user the exact branch, worktree, and PR/MR found.
+   Record the selected branch, PR/MR, and its current head commit SHA as the
+   validation target.
+2. Tell the user the exact branch, worktree, PR/MR, and head SHA found.
 3. Stop and ask the user to invoke `regression-validation` explicitly in a
    separate interaction. Do not invoke that skill from this skill, even if
    its metadata appears to permit it. Do not read its procedure and replay it
    manually; that would bypass its explicit-invocation guardrail.
 4. When the user reports a verdict, relay it and stop for `--validate` alone.
-   With both flags, continue at Approval step 4 and execute the remaining
-   Approval steps only for the exact positive verdict `✅ Safe to merge`.
+   With both flags, require the exact positive verdict `✅ Safe to merge`,
+   then re-resolve the branch and PR/MR before merging. Confirm that the
+   branch, PR/MR, and head commit SHA are unchanged from the validation
+   target. If any changed, stop and require a fresh validation rather than
+   applying the old verdict to new code.
+5. After the target identity is confirmed, continue at Approval step 3 and
+   execute that step and all remaining Approval steps. This deliberately
+   rechecks draft, conflict, and mergeability immediately before the merge.
    For any failure, ambiguity, or inability to validate cleanly, stop without
    merging.
 

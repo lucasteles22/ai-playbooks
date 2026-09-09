@@ -27,8 +27,10 @@ to Codex subagents, and falls back to sequential execution when subagents are
 unavailable.
 
 `regression-validation` is never invoked by this skill. For Validation, the
-skill reports the discovered branch/worktree/PR and asks the user to invoke
-`regression-validation` explicitly in a separate interaction.
+skill reports the discovered branch/worktree/PR and commit SHA, then asks the
+user to invoke `regression-validation` explicitly in a separate interaction.
+With `--validate --merge`, it requires the same branch, PR/MR, and SHA after
+validation and rechecks mergeability immediately before merging.
 
 `install.sh` installs this directory as `$CODEX_HOME/skills/orchestrator` once
 `SKILL.md` exists, including its `agents/openai.yaml` invocation policy.
